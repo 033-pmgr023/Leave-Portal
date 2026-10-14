@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leave Portal - RFL & FL</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React & ReactDOM CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel Standalone for inline JSX compilation -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // HARDCODED MASTER ROSTER WITH EXACT MANAGERS AND MAPPED LINGUISTS
+    const HARDCODED_ROSTER = [
+      // 1. MANAGERS
+      {
+        id: 'mgr-23',
+        name: 'Rishav Suman',
+        email: '033-pmgr_023@033vendor.com',
+        language: 'Project Manager Lead',
+        manager: 'Rishav Suman',
+        managerEmail: '033-pmgr_023@033vendor.com',
+        isManager: true
+      },
+      {
+        id: 'mgr-24',
+        name: 'Nikhil Achanta',
+        email: '033-pmgr_024@033vendor.com',
+        language: 'Project Manager Lead',
+        manager: 'Nikhil Achanta',
+        managerEmail: '033-pmgr_024@033vendor.com',
+        isManager: true
+      },
+      {
+        id: 'mgr-28',
+        name: 'Suraksha Yathish',
+        email: '033-pmgr_028@033vendor.com',
+        language: 'Project Manager Lead',
+        manager: 'Suraksha Yathish',
+        managerEmail: '033-pmgr_028@033vendor.com',
+        isManager: true
+      },
+
+      // 2. TEAM MEMBERS MAPPED UNDER RISHAV SUMAN
+      {
+        id: 'ling-1',
+        name: 'Nabajit Kataki',
+        email: '033-as_384@033vendor.com',
+        language: 'Assamese (AS)',
+        manager: 'Rishav Suman',
+        managerEmail: '033-pmgr_023@033vendor.com',
+        isManager: false
+      },
+      {
+        id: 'ling-2',
+        name: 'Partha Protim Boruah',
+        email: '033-as_392@033vendor.com',
+        language: 'Assamese (AS)',
+        manager: 'Rishav Suman',
+        managerEmail: '033-pmgr_023@033vendor.com',
+        isManager: false
+      },
+      {
+        id: 'ling-3',
+        name: 'Raj Kishore Sonowal',
+        email: '033-as_280@033vendor.com',
+        language: 'Assamese (AS)',
+        manager: 'Rishav Suman',
+        managerEmail: '033-pmgr_023@033vendor.com',
+        isManager: false
+      },
+      {
+        id: 'ling-4',
+        name: 'Kamal Boruh',
+        email: '033-as_431@033vendor.com',
+        language: 'Assamese (AS)',
+        manager: 'Rishav Suman',
+        managerEmail: '033-pmgr_023@033vendor.com',
+        isManager: false
+      },
+      {
+        id: 'ling-5',
+        name: 'Arup Das',
+        email: '033-bn_102@033vendor.com',
+        language: 'Bengali (BN)',
+        manager: 'Rishav Suman',
+        managerEmail: '033-pmgr_023@033vendor.com',
+        isManager: false
+      },
+      {
+        id: 'ling-6',
+        name: 'Pooja Sharma',
+        email: '033-hi_501@033vendor.com',
+        language: 'Hindi (HI)',
+        manager: 'Rishav Suman',
+        managerEmail: '033-pmgr_023@033vendor.com',
+        isManager: false
+      },
+
+      // 3. TEAM MEMBERS MAPPED UNDER NIKHIL ACHANTA
+      {
+        id: 'ling-7',
+        name: 'Suresh Kumar',
+        email: '033-kn_201@033vendor.com',
+        language: 'Kannada (KN)',
+        manager: 'Nikhil Achanta',
+        managerEmail: '033-pmgr_024@033vendor.com',
+        isManager: false
+      },
+      {
+        id: 'ling-8',
+        name: 'Ananya Rao',
+        email: '033-te_202@033vendor.com',
+        language: 'Telugu (TE)',
+        manager: 'Nikhil Achanta',
+        managerEmail: '033-pmgr_024@033vendor.com',
+        isManager: false
+      },
+      {
+        id: 'ling-9',
+        name: 'Karthik Raja',
+        email: '033-ta_203@033vendor.com',
+        language: 'Tamil (TA)',
+        manager: 'Nikhil Achanta',
+        managerEmail: '033-pmgr_024@033vendor.com',
+        isManager: false
+      },
+      {
+        id: 'ling-10',
+        name: 'Nikhil Menon',
+        email: '033-ml_204@033vendor.com',
+        language: 'Malayalam (ML)',
+        manager: 'Nikhil Achanta',
+        managerEmail: '033-pmgr_024@033vendor.com',
+        isManager: false
+      },
+
+      // 4. TEAM MEMBERS MAPPED UNDER SURAKSHA YATHISH
+      {
+        id: 'ling-11',
+        name: 'Amit Patel',
+        email: '033-gu_301@033vendor.com',
+        language: 'Gujarati (GU)',
+        manager: 'Suraksha Yathish',
+        managerEmail: '033-pmgr_028@033vendor.com',
+        isManager: false
+      },
+      {
+        id: 'ling-12',
+        name: 'Sneha Deshmukh',
+        email: '033-mr_302@033vendor.com',
+        language: 'Marathi (MR)',
+        manager: 'Suraksha Yathish',
+        managerEmail: '033-pmgr_028@033vendor.com',
+        isManager: false
+      },
+      {
+        id: 'ling-13',
+        name: 'Harpreet Singh',
+        email: '033-pa_303@033vendor.com',
+        language: 'Punjabi (PA)',
+        manager: 'Suraksha Yathish',
+        managerEmail: '033-pmgr_028@033vendor.com',
+        isManager: false
+      },
+      {
+        id: 'ling-14',
+        name: 'Manish Odia',
+        email: '033-or_304@033vendor.com',
+        language: 'Odia (OR)',
+        manager: 'Suraksha Yathish',
+        managerEmail: '033-pmgr_028@033vendor.com',
+        isManager: false
+      }
+    ];
+
+    // INITIAL LEAVE APPLICATIONS
+    const INITIAL_REQUESTS = [
+      {
+        id: 'REQ-101',
+        memberName: 'Nabajit Kataki',
+        memberEmail: '033-as_384@033vendor.com',
+        language: 'Assamese (AS)',
+        manager: 'Rishav Suman',
+        managerEmail: '033-pmgr_023@033vendor.com',
+        category: 'Sick leave',
+        startDate: '2026-07-06',
+        endDate: '2026-07-07',
+        daysCount: 2,
+        isHalfDay: false,
+        halfDayType: null,
+        reason: 'Fever and rest',
+        status: 'Approved',
+        month: 'Jul 2026',
+        managerNote: 'Approved. Get well soon!'
+      },
+      {
+        id: 'REQ-102',
+        memberName: 'Nabajit Kataki',
+        memberEmail: '033-as_384@033vendor.com',
+        language: 'Assamese (AS)',
+        manager: 'Rishav Suman',
+        managerEmail: '033-pmgr_023@033vendor.com',
+        category: 'Casual leave',
+        startDate: '2026-10-20',
+        endDate: '2026-10-22',
+        daysCount: 3,
+        isHalfDay: false,
+        halfDayType: null,
+        reason: 'Personal family travel',
+        status: 'Pending',
+        month: 'Oct 2026',
+        managerNote: ''
+      },
+      {
+        id: 'REQ-103',
+        memberName: 'Partha Protim Boruah',
+        memberEmail: '033-as_392@033vendor.com',
+        language: 'Assamese (AS)',
+        manager: 'Rishav Suman',
+        managerEmail: '033-pmgr_023@033vendor.com',
+        category: 'Casual leave',
+        startDate: '2026-10-28',
+        endDate: '2026-10-28',
+        daysCount: 0.5,
+        isHalfDay: true,
+        halfDayType: 'First Half',
+        reason: 'Bank appointment morning',
+        status: 'Pending',
+        month: 'Oct 2026',
+        managerNote: ''
+      },
+      {
+        id: 'REQ-104',
+        memberName: 'Suresh Kumar',
+        memberEmail: '033-kn_201@033vendor.com',
+        language: 'Kannada (KN)',
+        manager: 'Nikhil Achanta',
+        managerEmail: '033-pmgr_024@033vendor.com',
+        category: 'Planned leave',
+        startDate: '2026-08-14',
+        endDate: '2026-08-15',
+        daysCount: 2,
+        isHalfDay: false,
+        halfDayType: null,
+        reason: 'Festive holiday',
+        status: 'Approved',
+        month: 'Aug 2026',
+        managerNote: 'Approved.'
+      }
+    ];
+
+    const MONTHS = ['Jul 2026', 'Aug 2026', 'Sep 2026', 'Oct 2026', 'Nov 2026', 'Dec 2026'];
+
+    // SVG ICONS
+    const IconCalendar = () => (
+      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    );
+
+    const IconMail = () => (
+      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    );
+
+    const IconCheck = () => (
+      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+      </svg>
+    );
+
+    const IconCross = () => (
+      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    );
+
+    const IconChevronDown = ({ open }) => (
+      <svg className={`w-4 h-4 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    );
+
+    function App() {
+      // User Session State
+      const [currentUser, setCurrentUser] = useState(null);
+      const [inputEmail, setInputEmail] = useState('');
+      const [authError, setAuthError] = useState('');
+      const [showRosterDropdown, setShowRosterDropdown] = useState(false);
+
+      // Data States
+      const [roster] = useState(HARDCODED_ROSTER);
+      const [requests, setRequests] = useState(INITIAL_REQUESTS);
+
+      // Webhook & Email Settings
+      const [appsScriptUrl, setAppsScriptUrl] = useState(() => localStorage.getItem('leave_portal_webhook') || '');
+      const [showWebhookModal, setShowWebhookModal] = useState(false);
+      const [emailStatusLog, setEmailStatusLog] = useState(null);
+
+      // Manager Inspection States
+      const [showFullInspector, setShowFullInspector] = useState(false);
+      const [inspectorMonthFilter, setInspectorMonthFilter] = useState('All');
+      const [managerSelectedMemberId, setManagerSelectedMemberId] = useState('');
+      const [managerScopeFilter, setManagerScopeFilter] = useState('direct');
+      const [managerStatusFilter, setManagerStatusFilter] = useState('All');
+      const [managerSearchQuery, setManagerSearchQuery] = useState('');
+
+      // Decision Modal
+      const [reviewModal, setReviewModal] = useState(null);
+
+      // Form State
+      const [formData, setFormData] = useState({
+        category: 'Planned leave',
+        startDate: '',
+        endDate: '',
+        isHalfDay: false,
+        halfDayType: 'First Half',
+        reason: ''
+      });
+
+      const [toast, setToast] = useState(null);
+
+      const showToast = (msg, type = 'success') => {
+        setToast({ msg, type });
+        setTimeout(() => setToast(null), 3500);
+      };
+
+      // Direct Login Handler - Absolute 1:1 Matching
+      const handleLogin = (emailToLogin) => {
+        const cleanEmail = (emailToLogin || inputEmail).trim().toLowerCase();
+        if (!cleanEmail) {
+          setAuthError('Please enter a registered email address.');
+          return;
+        }
+
+        const foundUser = roster.find(m => m.email.toLowerCase() === cleanEmail);
+
+        if (foundUser) {
+          if (foundUser.isManager) {
+            setCurrentUser({ type: 'manager', ...foundUser });
+          } else {
+            setCurrentUser({ type: 'member', ...foundUser });
+          }
+          setAuthError('');
+          showToast(`Welcome back, ${foundUser.name}`);
+        } else {
+          setAuthError(`Email "${cleanEmail}" not found. Click "View Active Roster Emails" below to select registered email.`);
+        }
+      };
+
+      // Direct Reports List
+      const directReports = useMemo(() => {
+        if (!currentUser || currentUser.type !== 'manager') return [];
+        return roster.filter(m => m.manager.toLowerCase() === currentUser.name.toLowerCase() && !m.isManager);
+      }, [currentUser, roster]);
+
+      useEffect(() => {
+        if (directReports.length > 0 && (!managerSelectedMemberId || !directReports.some(m => m.id === managerSelectedMemberId))) {
+          setManagerSelectedMemberId(directReports[0].id);
+        }
+      }, [currentUser, directReports]);
+
+      // Webhook Dispatcher
+      const triggerAutoEmail = async (actionType, payloadData) => {
+        if (!appsScriptUrl) {
+          setEmailStatusLog({
+            type: actionType,
+            recipient: actionType === 'APPLY_LEAVE' ? payloadData.managerEmail : payloadData.memberEmail,
+            preview: actionType === 'APPLY_LEAVE' 
+              ? `Leave notification dispatched to ${payloadData.managerName} for ${payloadData.daysCount}d request.`
+              : `Confirmation email sent to ${payloadData.memberName} confirming status: ${payloadData.status}`
+          });
+          return;
+        }
+
+        try {
+          await fetch(appsScriptUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: actionType, data: payloadData })
+          });
+
+          setEmailStatusLog({
+            type: actionType,
+            recipient: actionType === 'APPLY_LEAVE' ? payloadData.managerEmail : payloadData.memberEmail,
+            preview: actionType === 'APPLY_LEAVE' 
+              ? `Live Email Dispatched via Apps Script to ${payloadData.managerEmail}`
+              : `Live Confirmation Email Dispatched to ${payloadData.memberEmail}`
+          });
+        } catch (err) {
+          console.warn('Webhook transmission error:', err);
+        }
+      };
+
+      const calculateDays = (start, end, isHalf) => {
+        if (!start) return 0;
+        if (isHalf) return 0.5;
+        if (!end) return 1;
+        const d1 = new Date(start);
+        const d2 = new Date(end);
+        if (d2 < d1) return 0;
+        return Math.ceil(Math.abs(d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
+      };
+
+      const handleSubmitLeave = (e) => {
+        e.preventDefault();
+        const days = calculateDays(formData.startDate, formData.endDate, formData.isHalfDay);
+        if (days <= 0) {
+          showToast('End date cannot be prior to start date.', 'error');
+          return;
+        }
+
+        const d = new Date(formData.startDate);
+        const monthLabel = d.toLocaleString('en-US', { month: 'short', year: 'numeric' }) || 'Oct 2026';
+
+        const newReq = {
+          id: `REQ-${Math.floor(200 + Math.random() * 800)}`,
+          memberName: currentUser.name,
+          memberEmail: currentUser.email,
+          language: currentUser.language,
+          manager: currentUser.manager,
+          managerEmail: currentUser.managerEmail,
+          category: formData.category,
+          startDate: formData.startDate,
+          endDate: formData.isHalfDay ? formData.startDate : formData.endDate,
+          daysCount: days,
+          isHalfDay: formData.isHalfDay,
+          halfDayType: formData.isHalfDay ? formData.halfDayType : null,
+          reason: formData.reason,
+          status: 'Pending',
+          month: monthLabel,
+          managerNote: ''
+        };
+
+        setRequests([newReq, ...requests]);
+        setFormData({ category: 'Planned leave', startDate: '', endDate: '', isHalfDay: false, halfDayType: 'First Half', reason: '' });
+        
+        triggerAutoEmail('APPLY_LEAVE', {
+          ...newReq,
+          managerName: currentUser.manager
+        });
+
+        showToast(`Leave application submitted (${days}d). Sent to ${currentUser.manager}.`);
+      };
+
+      const confirmReviewDecision = () => {
+        if (!reviewModal) return;
+        const { req, nextStatus, note } = reviewModal;
+
+        setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: nextStatus, managerNote: note } : r));
+
+        triggerAutoEmail('UPDATE_STATUS', {
+          id: req.id,
+          memberName: req.memberName,
+          memberEmail: req.memberEmail,
+          managerName: currentUser.name,
+          status: nextStatus,
+          startDate: req.startDate,
+          endDate: req.endDate,
+          daysCount: req.daysCount,
+          category: req.category,
+          managerNote: note
+        });
+
+        showToast(`Request ${req.id} marked as ${nextStatus}.`);
+        setReviewModal(null);
+      };
+
+      const myRequests = useMemo(() => {
+        if (!currentUser || currentUser.type !== 'member') return [];
+        return requests.filter(r => r.memberName.toLowerCase() === currentUser.name.toLowerCase());
+      }, [requests, currentUser]);
+
+      const myTotalApprovedDays = useMemo(() => {
+        return myRequests.filter(r => r.status === 'Approved').reduce((acc, r) => acc + r.daysCount, 0);
+      }, [myRequests]);
+
+      const myMonthlySummary = useMemo(() => {
+        const data = {};
+        MONTHS.forEach(m => data[m] = { month: m, total: 0, sick: 0, casual: 0, planned: 0, unpaid: 0 });
+        myRequests.forEach(r => {
+          if (!data[r.month]) data[r.month] = { month: r.month, total: 0, sick: 0, casual: 0, planned: 0, unpaid: 0 };
+          if (r.status === 'Approved') {
+            data[r.month].total += r.daysCount;
+            if (r.category === 'Sick leave') data[r.month].sick += r.daysCount;
+            if (r.category === 'Casual leave') data[r.month].casual += r.daysCount;
+            if (r.category === 'Planned leave') data[r.month].planned += r.daysCount;
+            if (r.category === 'Leave without pay') data[r.month].unpaid += r.daysCount;
+          }
+        });
+        return Object.values(data);
+      }, [myRequests]);
+
+      const targetMember = useMemo(() => {
+        return roster.find(m => m.id === managerSelectedMemberId) || directReports[0] || roster[0];
+      }, [managerSelectedMemberId, directReports, roster]);
+
+      const targetRequests = useMemo(() => {
+        if (!targetMember) return [];
+        return requests.filter(r => r.memberName.toLowerCase() === targetMember.name.toLowerCase());
+      }, [targetMember, requests]);
+
+      const targetStats = useMemo(() => {
+        const approved = targetRequests.filter(r => r.status === 'Approved');
+        const total = approved.reduce((s, r) => s + r.daysCount, 0);
+        const planned = approved.filter(r => r.category === 'Planned leave').reduce((s, r) => s + r.daysCount, 0);
+        const sick = approved.filter(r => r.category === 'Sick leave').reduce((s, r) => s + r.daysCount, 0);
+        const casual = approved.filter(r => r.category === 'Casual leave').reduce((s, r) => s + r.daysCount, 0);
+        const unpaid = approved.filter(r => r.category === 'Leave without pay').reduce((s, r) => s + r.daysCount, 0);
+
+        const monthly = {};
+        MONTHS.forEach(m => monthly[m] = { total: 0, sick: 0, casual: 0, planned: 0, unpaid: 0 });
+        approved.forEach(r => {
+          if (!monthly[r.month]) monthly[r.month] = { total: 0, sick: 0, casual: 0, planned: 0, unpaid: 0 };
+          monthly[r.month].total += r.daysCount;
+          if (r.category === 'Sick leave') monthly[r.month].sick += r.daysCount;
+          if (r.category === 'Casual leave') monthly[r.month].casual += r.daysCount;
+          if (r.category === 'Planned leave') monthly[r.month].planned += r.daysCount;
+          if (r.category === 'Leave without pay') monthly[r.month].unpaid += r.daysCount;
+        });
+
+        return { total, planned, sick, casual, unpaid, monthly };
+      }, [targetRequests]);
+
+      const inspectedHistory = useMemo(() => {
+        if (inspectorMonthFilter === 'All') return targetRequests;
+        return targetRequests.filter(r => r.month === inspectorMonthFilter);
+      }, [targetRequests, inspectorMonthFilter]);
+
+      const filteredQueue = useMemo(() => {
+        if (!currentUser || currentUser.type !== 'manager') return [];
+        return requests.filter(r => {
+          const isDirect = r.manager.toLowerCase() === currentUser.name.toLowerCase() || 
+                           r.managerEmail.toLowerCase() === currentUser.email.toLowerCase();
+          if (managerScopeFilter === 'direct' && !isDirect) return false;
+          if (managerStatusFilter !== 'All' && r.status !== managerStatusFilter) return false;
+          if (managerSearchQuery.trim()) {
+            const q = managerSearchQuery.toLowerCase();
+            const matches = r.memberName.toLowerCase().includes(q) || r.category.toLowerCase().includes(q) || r.reason.toLowerCase().includes(q);
+            if (!matches) return false;
+          }
+          return true;
+        });
+      }, [requests, currentUser, managerScopeFilter, managerStatusFilter, managerSearchQuery]);
+
+      const pendingDirectCount = useMemo(() => {
+        if (!currentUser || currentUser.type !== 'manager') return 0;
+        return requests.filter(r => 
+          (r.manager.toLowerCase() === currentUser.name.toLowerCase() || r.managerEmail.toLowerCase() === currentUser.email.toLowerCase()) && 
+          r.status === 'Pending'
+        ).length;
+      }, [requests, currentUser]);
+
+      // LOGIN SCREEN
+      if (!currentUser) {
+        return (
+          <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+            <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 border border-slate-100">
+              <div className="text-center mb-6">
+                <div className="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-indigo-200">
+                  <IconCalendar />
+                </div>
+                <h1 className="text-xl font-extrabold text-slate-900">Leave Portal - RFL & FL</h1>
+                <p className="text-xs text-slate-500 mt-1">Enter your registered email ID to launch your workspace</p>
+              </div>
+
+              <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="space-y-4">
+                <div>
+                  <label className="block text-[11px] font-bold uppercase text-slate-600 mb-1">Your Registered Email</label>
+                  <input
+                    type="email"
+                    placeholder="e.g. 033-pmgr_023@033vendor.com"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    value={inputEmail}
+                    onChange={(e) => { setInputEmail(e.target.value); setAuthError(''); }}
+                    required
+                  />
+                  {authError && (
+                    <p className="text-[11px] text-rose-600 font-semibold mt-1.5 leading-tight">{authError}</p>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-2"
+                >
+                  Sign In to Dashboard
+                </button>
+              </form>
+
+              {/* Roster Helper Selector */}
+              <div className="mt-6 pt-5 border-t border-slate-100 text-center">
+                <button
+                  onClick={() => setShowRosterDropdown(!showRosterDropdown)}
+                  className="text-xs text-indigo-600 font-bold hover:underline inline-flex items-center gap-1"
+                >
+                  <span>{showRosterDropdown ? 'Hide Active Email Roster' : 'View Active Roster Emails'}</span>
+                  <IconChevronDown open={showRosterDropdown} />
+                </button>
+
+                {showRosterDropdown && (
+                  <div className="mt-3 p-3 bg-slate-50 rounded-2xl border border-slate-200 text-left space-y-2 max-h-60 overflow-y-auto text-xs">
+                    <div className="text-[10px] font-extrabold uppercase text-slate-400">Managers:</div>
+                    {roster.filter(m => m.isManager).map(m => (
+                      <button
+                        key={m.id}
+                        onClick={() => {
+                          setInputEmail(m.email);
+                          handleLogin(m.email);
+                        }}
+                        className="w-full text-left p-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 flex items-center justify-between text-indigo-950 transition-all"
+                      >
+                        <div>
+                          <div className="font-extrabold">{m.name}</div>
+                          <div className="text-[10px] text-indigo-600">{m.email}</div>
+                        </div>
+                        <span className="text-[10px] font-bold text-indigo-700 bg-white px-2 py-0.5 rounded shadow-xs">
+                          Manager
+                        </span>
+                      </button>
+                    ))}
+
+                    <div className="text-[10px] font-extrabold uppercase text-slate-400 mt-2">Team Members (Linguists):</div>
+                    {roster.filter(m => !m.isManager).map(m => (
+                      <button
+                        key={m.id}
+                        onClick={() => {
+                          setInputEmail(m.email);
+                          handleLogin(m.email);
+                        }}
+                        className="w-full text-left p-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 flex items-center justify-between text-slate-800 transition-all"
+                      >
+                        <div>
+                          <div className="font-bold">{m.name}</div>
+                          <div className="text-[10px] text-slate-500">{m.email} ({m.language})</div>
+                        </div>
+                        <span className="text-[10px] font-semibold text-slate-500">
+                          {m.manager.split(' ')[0]}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </div>
+        );
+      }
+
+      // MAIN DASHBOARD VIEW
+      return (
+        <div className="min-h-screen bg-slate-50 pb-16">
+          {/* Toast Notification */}
+          {toast && (
+            <div className={`fixed top-4 right-4 z-50 px-4 py-2.5 rounded-xl shadow-xl text-white font-bold text-xs flex items-center gap-2 ${
+              toast.type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'
+            }`}>
+              <span>{toast.msg}</span>
+            </div>
+          )}
+
+          {/* Auto Email Activity Banner */}
+          {emailStatusLog && (
+            <div className="bg-indigo-950 text-indigo-100 border-b border-indigo-800 px-4 py-2 text-xs flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span className="font-extrabold text-indigo-200 flex items-center gap-1.5">
+                  <IconMail /> Auto-Email Dispatched:
+                </span>
+                <span className="text-white font-medium">{emailStatusLog.preview}</span>
+                <span className="text-indigo-300 text-[11px]">({emailStatusLog.recipient})</span>
+              </div>
+              <button 
+                onClick={() => setEmailStatusLog(null)} 
+                className="text-indigo-300 hover:text-white font-bold text-xs"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
+
+          {/* Navigation Bar */}
+          <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-xs">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black shadow-md shadow-indigo-100">
+                  <IconCalendar />
+                </div>
+                <div>
+                  <h1 className="font-extrabold text-slate-900 text-sm leading-none">Leave Portal - RFL & FL</h1>
+                </div>
+              </div>
+
+              {/* Active Session & Actions */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowWebhookModal(true)}
+                  className="hidden md:flex items-center gap-1.5 text-[11px] font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl border border-indigo-200 transition-all"
+                  title="Configure live Google Apps Script email webhook"
+                >
+                  <IconMail />
+                  <span>{appsScriptUrl ? 'Email Webhook Active' : 'Connect Auto-Mailer'}</span>
+                </button>
+
+                <div className="text-right hidden sm:block">
+                  <div className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5 justify-end">
+                    {currentUser.name}
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                      {currentUser.type === 'manager' ? 'Manager' : currentUser.language}
+                    </span>
+                  </div>
+                  <div className="text-[10px] text-slate-400">{currentUser.email}</div>
+                </div>
+
+                <button
+                  onClick={() => setCurrentUser(null)}
+                  className="text-xs font-bold text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-xl border border-rose-200 transition-all"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          </header>
+
+          {/* Review Decision Modal */}
+          {reviewModal && (
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+              <div className="bg-white max-w-md w-full rounded-3xl p-6 shadow-2xl border border-slate-100 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                    {reviewModal.nextStatus === 'Approved' ? (
+                      <span className="text-emerald-600 flex items-center gap-1"><IconCheck /> Approve Leave Request</span>
+                    ) : (
+                      <span className="text-rose-600 flex items-center gap-1"><IconCross /> Reject Leave Request</span>
+                    )}
+                  </h3>
+                  <button onClick={() => setReviewModal(null)} className="text-slate-400 hover:text-slate-700 font-bold">&times;</button>
+                </div>
+
+                <div className="text-xs text-slate-600 space-y-1">
+                  <div><strong>Member:</strong> {reviewModal.req.memberName} ({reviewModal.req.category})</div>
+                  <div><strong>Dates:</strong> {reviewModal.req.startDate} to {reviewModal.req.endDate} ({reviewModal.req.daysCount}d)</div>
+                  <div><strong>Reason:</strong> <em>"{reviewModal.req.reason}"</em></div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold uppercase text-slate-600 mb-1">
+                    Manager Feedback Note {reviewModal.nextStatus === 'Approved' ? '(Optional)' : '(Required)'}
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder={reviewModal.nextStatus === 'Approved' ? 'e.g. Approved. Enjoy your time off!' : 'e.g. Schedule clash with critical deliverable'}
+                    value={reviewModal.note}
+                    onChange={(e) => setReviewModal({ ...reviewModal, note: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-2">
+                  <button
+                    onClick={() => setReviewModal(null)}
+                    className="px-3 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmReviewDecision}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold text-white shadow-md ${
+                      reviewModal.nextStatus === 'Approved' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'
+                    }`}
+                  >
+                    Confirm {reviewModal.nextStatus}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Webhook Configuration Modal */}
+          {showWebhookModal && (
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+              <div className="bg-white max-w-lg w-full rounded-3xl p-6 shadow-2xl border border-slate-100 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                    <IconMail /> Google Apps Script Auto-Email Configuration
+                  </h3>
+                  <button onClick={() => setShowWebhookModal(false)} className="text-slate-400 hover:text-slate-700 font-bold">&times;</button>
+                </div>
+
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Paste your Google Apps Script Web App URL below. When saved, all leave submissions and manager status updates will automatically dispatch live emails to managers and team members!
+                </p>
+
+                <div>
+                  <label className="block text-[11px] font-bold uppercase text-slate-600 mb-1">Apps Script Web App URL</label>
+                  <input
+                    type="url"
+                    placeholder="https://script.google.com/macros/s/.../exec"
+                    value={appsScriptUrl}
+                    onChange={(e) => setAppsScriptUrl(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-2">
+                  <button
+                    onClick={() => {
+                      localStorage.setItem('leave_portal_webhook', appsScriptUrl);
+                      setShowWebhookModal(false);
+                      showToast('Google Apps Script Webhook configured successfully!');
+                    }}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs"
+                  >
+                    Save Webhook URL
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-5">
+
+            {/* TEAM MEMBER VIEW */}
+            {currentUser.type === 'member' && (
+              <div className="space-y-6">
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-700 font-black text-lg flex items-center justify-center border border-indigo-200">
+                      {currentUser.name.split(' ').map(n => n[0]).join('')}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h2 className="font-extrabold text-slate-900 text-base">{currentUser.name}</h2>
+                        <span className="bg-emerald-50 text-emerald-700 font-extrabold text-[10px] px-2 py-0.5 rounded-full border border-emerald-200">
+                          {currentUser.language}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Reporting Manager: <strong className="text-slate-800">{currentUser.manager}</strong> &bull; {currentUser.email}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-200 text-right w-full sm:w-auto">
+                    <span className="text-[10px] font-extrabold uppercase text-slate-400 block">Total Leaves Taken YTD</span>
+                    <span className="text-2xl font-black text-slate-900">{myTotalApprovedDays} <span className="text-xs font-normal text-slate-500">Days</span></span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  {/* Apply Form */}
+                  <div className="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs self-start">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-extrabold text-slate-900 text-sm">Apply for Leave</h3>
+                      <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <IconMail /> Auto-emails manager
+                      </span>
+                    </div>
+                    
+                    <form onSubmit={handleSubmitLeave} className="space-y-4 text-xs">
+                      <div>
+                        <label className="block font-bold uppercase text-slate-600 mb-1">Leave Category</label>
+                        <select
+                          className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          value={formData.category}
+                          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                        >
+                          <option value="Planned leave">Planned leave</option>
+                          <option value="Sick leave">Sick leave</option>
+                          <option value="Casual leave">Casual leave</option>
+                          <option value="Leave without pay">Leave without pay</option>
+                        </select>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block font-bold uppercase text-slate-600 mb-1">Start Date</label>
+                          <input
+                            type="date"
+                            className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            value={formData.startDate}
+                            onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block font-bold uppercase text-slate-600 mb-1">
+                            End Date {formData.isHalfDay && '(Same)'}
+                          </label>
+                          <input
+                            type="date"
+                            disabled={formData.isHalfDay}
+                            className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 font-medium text-slate-800 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            value={formData.endDate}
+                            onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                            required={!formData.isHalfDay}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Half-Day Toggle */}
+                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                        <label className="flex items-center gap-2 cursor-pointer font-bold text-slate-700">
+                          <input
+                            type="checkbox"
+                            className="w-4 h-4 text-indigo-600 rounded border-slate-300"
+                            checked={formData.isHalfDay}
+                            onChange={(e) => setFormData({ ...formData, isHalfDay: e.target.checked })}
+                          />
+                          Opt for Half Day (0.5 Day)
+                        </label>
+
+                        {formData.isHalfDay && (
+                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200">
+                            <button
+                              type="button"
+                              onClick={() => setFormData({ ...formData, halfDayType: 'First Half' })}
+                              className={`py-1.5 px-3 rounded-lg font-bold border transition-all text-[11px] ${
+                                formData.halfDayType === 'First Half'
+                                  ? 'bg-indigo-600 text-white border-indigo-600'
+                                  : 'bg-white text-slate-700 border-slate-300'
+                              }`}
+                            >
+                              First Half (Morning)
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setFormData({ ...formData, halfDayType: 'Second Half' })}
+                              className={`py-1.5 px-3 rounded-lg font-bold border transition-all text-[11px] ${
+                                formData.halfDayType === 'Second Half'
+                                  ? 'bg-indigo-600 text-white border-indigo-600'
+                                  : 'bg-white text-slate-700 border-slate-300'
+                              }`}
+                            >
+                              Second Half (Afternoon)
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block font-bold uppercase text-slate-600 mb-1">Reason / Context</label>
+                        <textarea
+                          rows={3}
+                          placeholder="Brief explanation for your leave..."
+                          className="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          value={formData.reason}
+                          onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                          required
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md transition-all text-xs flex items-center justify-center gap-2"
+                      >
+                        <IconMail />
+                        Submit & Notify {currentUser.manager}
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Monthly Summary & Personal Log */}
+                  <div className="lg:col-span-7 space-y-6">
+                    <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                      <h3 className="font-extrabold text-slate-900 text-sm mb-1">Monthly Leaves Taken</h3>
+                      <p className="text-xs text-slate-500 mb-3">Breakdown of approved leaves per month</p>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                        {myMonthlySummary.map(m => (
+                          <div key={m.month} className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex flex-col justify-between">
+                            <div>
+                              <span className="text-[10px] font-extrabold text-slate-400 uppercase">{m.month}</span>
+                              <div className="text-lg font-black text-slate-900">{m.total} <span className="text-[10px] font-semibold text-slate-400">days</span></div>
+                            </div>
+                            <div className="mt-2 pt-2 border-t border-slate-200 text-[10px] space-y-0.5 text-slate-600">
+                              {m.sick > 0 && <div className="text-rose-600 flex justify-between"><span>Sick:</span><strong>{m.sick}d</strong></div>}
+                              {m.casual > 0 && <div className="text-emerald-600 flex justify-between"><span>Casual:</span><strong>{m.casual}d</strong></div>}
+                              {m.planned > 0 && <div className="text-indigo-600 flex justify-between"><span>Planned:</span><strong>{m.planned}d</strong></div>}
+                              {m.unpaid > 0 && <div className="text-amber-600 flex justify-between"><span>Unpaid:</span><strong>{m.unpaid}d</strong></div>}
+                              {m.total === 0 && <div className="text-slate-400 italic text-center">0 days</div>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-extrabold text-slate-900 text-sm">Application Status Log</h3>
+                        <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                          {myRequests.length} Total
+                        </span>
+                      </div>
+
+                      {myRequests.length === 0 ? (
+                        <div className="p-6 text-center text-xs text-slate-400">No leave applications yet.</div>
+                      ) : (
+                        <div className="space-y-2.5">
+                          {myRequests.map(r => (
+                            <div key={r.id} className="p-3 bg-white border border-slate-200 rounded-xl text-xs space-y-1.5">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-extrabold text-slate-900">{r.category}</span>
+                                  <span className="bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded font-bold text-[10px]">
+                                    {r.daysCount}d {r.isHalfDay && `(${r.halfDayType})`}
+                                  </span>
+                                </div>
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                                  r.status === 'Approved' ? 'bg-emerald-100 text-emerald-800' :
+                                  r.status === 'Rejected' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                                }`}>
+                                  {r.status}
+                                </span>
+                              </div>
+                              <div className="text-slate-500 text-[11px]">
+                                {r.startDate} {r.startDate !== r.endDate ? `to ${r.endDate}` : ''} ({r.month}) &bull; Reason: {r.reason}
+                              </div>
+                              {r.managerNote && (
+                                <div className="bg-slate-50 p-2 rounded-lg text-slate-700 border border-slate-200 text-[11px]">
+                                  <strong>Manager Note:</strong> {r.managerNote}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* MANAGER DASHBOARD VIEW */}
+            {currentUser.type === 'manager' && (
+              <div className="space-y-6">
+                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div>
+                    <h2 className="font-extrabold text-slate-900 text-base">{currentUser.name} (Manager Workspace)</h2>
+                    <p className="text-xs text-slate-500">
+                      Managing {directReports.length} direct report{directReports.length !== 1 ? 's' : ''} in your team
+                    </p>
+                  </div>
+                  
+                  {pendingDirectCount > 0 ? (
+                    <div className="bg-amber-50 text-amber-900 border border-amber-200 px-3 py-1.5 rounded-xl text-xs font-bold">
+                      {pendingDirectCount} pending request{pendingDirectCount !== 1 ? 's' : ''} awaiting review
+                    </div>
+                  ) : (
+                    <div className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-bold">
+                      All direct report requests processed
+                    </div>
+                  )}
+                </div>
+
+                {/* COLLAPSIBLE DASHBOARD INSPECTOR */}
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+                  <div className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Individual Inspector</span>
+                        <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200">
+                          Direct Reports Only
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center gap-3 mt-1.5">
+                        <select
+                          value={managerSelectedMemberId}
+                          onChange={(e) => setManagerSelectedMemberId(e.target.value)}
+                          className="bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-extrabold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                          {directReports.length === 0 ? (
+                            <option disabled>No mapped direct reports</option>
+                          ) : (
+                            directReports.map(m => (
+                              <option key={m.id} value={m.id}>{m.name} — {m.language}</option>
+                            ))
+                          )}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Quick Metric Pills */}
+                    <div className="flex items-center gap-2">
+                      <div className="bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 text-center">
+                        <span className="text-[9px] uppercase font-bold text-slate-400 block">Total YTD</span>
+                        <span className="text-sm font-black text-slate-900">{targetStats.total}d</span>
+                      </div>
+                      <div className="bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 text-center">
+                        <span className="text-[9px] uppercase font-bold text-slate-400 block">Sick</span>
+                        <span className="text-sm font-black text-rose-600">{targetStats.sick}d</span>
+                      </div>
+                      <div className="bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 text-center">
+                        <span className="text-[9px] uppercase font-bold text-slate-400 block">Casual</span>
+                        <span className="text-sm font-black text-emerald-600">{targetStats.casual}d</span>
+                      </div>
+
+                      <button
+                        onClick={() => setShowFullInspector(!showFullInspector)}
+                        className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-xl transition-all border border-indigo-200 ml-2"
+                      >
+                        <span>{showFullInspector ? 'Hide Breakdown' : 'Expand Full Breakdown'}</span>
+                        <IconChevronDown open={showFullInspector} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Expanded Content Drawer */}
+                  {showFullInspector && targetMember && (
+                    <div className="p-5 bg-slate-50/50 space-y-5 border-t border-slate-100">
+                      <div>
+                        <h4 className="text-[11px] font-extrabold uppercase text-slate-600 mb-2">
+                          Month-by-Month Record &bull; {targetMember.name} ({targetMember.language})
+                        </h4>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-6 gap-2.5">
+                          {MONTHS.map(m => {
+                            const d = targetStats.monthly[m] || { total: 0, sick: 0, casual: 0, planned: 0, unpaid: 0 };
+                            return (
+                              <div key={m} className="p-3 bg-white rounded-xl border border-slate-200 flex flex-col justify-between">
+                                <div>
+                                  <span className="text-[10px] font-extrabold uppercase text-slate-400">{m}</span>
+                                  <div className="text-base font-black text-slate-900">{d.total} <span className="text-[10px] font-medium text-slate-400">days</span></div>
+                                </div>
+                                <div className="mt-2 pt-2 border-t border-slate-100 text-[10px] space-y-0.5">
+                                  <div className="flex justify-between text-rose-600"><span>Sick:</span><strong>{d.sick}d</strong></div>
+                                  <div className="flex justify-between text-emerald-600"><span>Casual:</span><strong>{d.casual}d</strong></div>
+                                  <div className="flex justify-between text-indigo-600"><span>Planned:</span><strong>{d.planned}d</strong></div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-[11px] font-extrabold uppercase text-slate-600">Historical Leaves Applied</h4>
+                          <div className="flex items-center gap-1.5 text-xs">
+                            <span className="text-slate-500 font-bold text-[11px]">Filter:</span>
+                            <select
+                              value={inspectorMonthFilter}
+                              onChange={(e) => setInspectorMonthFilter(e.target.value)}
+                              className="bg-white border border-slate-300 rounded-lg px-2 py-0.5 text-xs font-bold text-slate-800"
+                            >
+                              <option value="All">All Months</option>
+                              {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+                            </select>
+                          </div>
+                        </div>
+
+                        {inspectedHistory.length === 0 ? (
+                          <div className="p-4 bg-white rounded-xl text-center text-xs text-slate-400 border border-slate-200">
+                            No leaves on record for {targetMember.name} in this period.
+                          </div>
+                        ) : (
+                          <div className="space-y-1.5">
+                            {inspectedHistory.map(r => (
+                              <div key={r.id} className="p-2.5 bg-white border border-slate-200 rounded-xl flex items-center justify-between text-xs">
+                                <div>
+                                  <span className="font-extrabold text-slate-900">{r.category}</span>
+                                  <span className="text-slate-500 ml-2">{r.startDate} to {r.endDate} ({r.daysCount}d)</span>
+                                  <span className="text-slate-400 ml-2">&bull; {r.reason}</span>
+                                </div>
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                                  r.status === 'Approved' ? 'bg-emerald-100 text-emerald-800' :
+                                  r.status === 'Rejected' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                                }`}>
+                                  {r.status}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* LEAVE APPLICATIONS & APPROVALS QUEUE */}
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+                  <div className="p-4 sm:p-5 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div>
+                      <h3 className="font-extrabold text-slate-900 text-sm">Leave Applications & Approvals</h3>
+                      <p className="text-xs text-slate-500">Approve or update contractor time-off requests</p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex bg-slate-100 p-1 rounded-xl">
+                        <button
+                          onClick={() => setManagerScopeFilter('direct')}
+                          className={`px-3 py-1 text-xs font-extrabold rounded-lg transition-all ${
+                            managerScopeFilter === 'direct' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-600'
+                          }`}
+                        >
+                          My Direct Reports
+                        </button>
+                        <button
+                          onClick={() => setManagerScopeFilter('all')}
+                          className={`px-3 py-1 text-xs font-extrabold rounded-lg transition-all ${
+                            managerScopeFilter === 'all' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-600'
+                          }`}
+                        >
+                          All Members
+                        </button>
+                      </div>
+
+                      <input
+                        type="text"
+                        placeholder="Search member / reason..."
+                        value={managerSearchQuery}
+                        onChange={(e) => setManagerSearchQuery(e.target.value)}
+                        className="bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-1 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 w-36 sm:w-44"
+                      />
+
+                      <div className="flex bg-slate-100 p-1 rounded-xl">
+                        {['All', 'Pending', 'Approved', 'Rejected'].map(st => (
+                          <button
+                            key={st}
+                            onClick={() => setManagerStatusFilter(st)}
+                            className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all ${
+                              managerStatusFilter === st ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-600'
+                            }`}
+                          >
+                            {st}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-slate-50 text-slate-400 font-extrabold uppercase text-[10px] border-b border-slate-200">
+                        <tr>
+                          <th className="p-3.5 pl-5">Linguist</th>
+                          <th className="p-3.5">Category</th>
+                          <th className="p-3.5">Dates</th>
+                          <th className="p-3.5">Reason</th>
+                          <th className="p-3.5">Status</th>
+                          <th className="p-3.5 pr-5 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {filteredQueue.length === 0 ? (
+                          <tr>
+                            <td colSpan={6} className="p-8 text-center text-slate-400">
+                              No requests match your current filters.
+                            </td>
+                          </tr>
+                        ) : (
+                          filteredQueue.map(r => (
+                            <tr key={r.id} className="hover:bg-slate-50/80 transition-all">
+                              <td className="p-3.5 pl-5">
+                                <div className="font-extrabold text-slate-900">{r.memberName}</div>
+                                <div className="text-[10px] text-slate-400">{r.manager} &bull; {r.language}</div>
+                              </td>
+                              <td className="p-3.5">
+                                <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold text-[11px]">
+                                  {r.category}
+                                </span>
+                              </td>
+                              <td className="p-3.5">
+                                <div className="font-bold text-slate-800">{r.startDate} {r.startDate !== r.endDate ? `to ${r.endDate}` : ''}</div>
+                                <div className="text-[10px] text-slate-400">{r.daysCount}d {r.isHalfDay && `(${r.halfDayType})`}</div>
+                              </td>
+                              <td className="p-3.5 max-w-xs truncate text-slate-600" title={r.reason}>
+                                {r.reason}
+                              </td>
+                              <td className="p-3.5">
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                                  r.status === 'Approved' ? 'bg-emerald-100 text-emerald-800' :
+                                  r.status === 'Rejected' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                                }`}>
+                                  {r.status}
+                                </span>
+                              </td>
+                              <td className="p-3.5 pr-5 text-right">
+                                {r.status === 'Pending' ? (
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    <button
+                                      onClick={() => setReviewModal({ req: r, nextStatus: 'Approved', note: 'Approved.' })}
+                                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs"
+                                    >
+                                      Approve
+                                    </button>
+                                    <button
+                                      onClick={() => setReviewModal({ req: r, nextStatus: 'Rejected', note: '' })}
+                                      className="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold px-2.5 py-1 rounded-lg text-xs"
+                                    >
+                                      Reject
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={() => setReviewModal({ req: r, nextStatus: r.status === 'Approved' ? 'Rejected' : 'Approved', note: '' })}
+                                    className="text-[11px] text-indigo-600 hover:text-indigo-800 font-bold underline"
+                                  >
+                                    Edit Status
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+          </main>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
+```
+
+### Steps to publish to Netlify now:
+1. Download `index.html` from the code panel on the right.
+2. Go to **[app.netlify.com/drop](https://app.netlify.com/drop)** and drag the folder containing `index.html` into Netlify.
+3. Open the resulting URL and type **`033-pmgr_023@033vendor.com`** (or click **"View Active Roster Emails"** on the login screen to click any manager or team member button)—it will log in immediately!
